@@ -1,0 +1,215 @@
+import { LitElement, html } from "lit-element";
+import stylesScss from './cmp-homeStyle';
+import { Router } from "@vaadin/router";
+import { UserService } from './main';
+
+
+class Home3 extends LitElement {
+  static get properties() {
+    return {
+      equipos: { type: Array },
+    };
+  }
+
+  // Inside the Home3 class constructor and connectedCallback methods
+constructor() {
+  super();
+  this.equipos = this.loadEquiposFromLocalStorage(); // Cargar equipos desde el almacenamiento local
+}
+
+connectedCallback() {
+  super.connectedCallback();
+  this.equipos = this.loadEquiposFromLocalStorage(); // Cargar equipos cuando el componente está conectado
+}
+
+// Inside loadEquiposFromLocalStorage() method
+loadEquiposFromLocalStorage() {
+  const data = localStorage.getItem('equipos');
+  return data ? JSON.parse(data) : [];
+}
+
+// Inside saveEquiposToLocalStorage() method
+saveEquiposToLocalStorage() {
+  localStorage.setItem('equipos', JSON.stringify(this.equipos));
+}
+
+  usuarios() {
+    Router.go('/usuarios');
+  }
+
+  campanas() {
+    Router.go('/campanas');
+  }
+
+  equipos() {
+    Router.go('/equipos');
+  }
+
+  addEquipo(nombreEquipo, campañasSeleccionadas, numeroParticipantes) {
+    if (nombreEquipo) {
+      const nuevoEquipo = {
+        nombre: nombreEquipo,
+        campañas: campañasSeleccionadas,
+        participantes: numeroParticipantes,
+      };
+  
+      UserService.equipos.push(nuevoEquipo);
+      this.saveEquiposToLocalStorage();
+  
+      nombreEquipoInput.value = ''; // Limpiar el campo después de agregar el equipo
+      this.cerrarFormulario(); // Cerrar el formulario después de agregar el equipo
+    } else {
+      alert('Debe ingresar un nombre para el equipo.');
+    }
+  }
+  
+  abrirFormulario() {
+    const formulario = this.shadowRoot.getElementById("formulario");
+    formulario.style.display = "block";
+  }
+  
+  cerrarFormulario() {
+    const formulario = this.shadowRoot.getElementById("formulario");
+    formulario.style.display = "none";
+  }
+  
+  agregarEquipo() {
+    const nombreEquipoInput = this.shadowRoot.getElementById("nombreEquipo");
+    const nombreEquipo = nombreEquipoInput.value;
+  
+    const campañasSeleccionadas = Array.from(this.shadowRoot.getElementById("campañasSeleccionadas").selectedOptions).map(option => option.value);
+    const numeroParticipantes = Number(this.shadowRoot.getElementById("numeroParticipantes").value);
+  
+    this.addEquipo(nombreEquipo, campañasSeleccionadas, numeroParticipantes);
+  }
+  
+  
+
+  static get styles() {
+    return [stylesScss];
+  }
+
+  render() {
+    return html`
+     
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+    crossorigin="anonymous"
+  />
+
+  <!-- Sidebar-->
+  <div class="d-flex ">
+    <div class="pt-2 d-flex justify-content-left ">
+      <div
+        class="d-flex  flex-shrink-0 p-3 ml-5"
+        style="width: 250px; background-color: rgb(201, 205, 207); border-radius: 1rem; height: 36rem;"
+      >
+        <hr />
+        <ul class="nav nav-pills flex-column mb-auto" style="width: 25rem;">
+          <li class="nav-item">
+            <a
+              href="#"
+              @click=${(e) => this.usuarios()}
+              class="nav-link active bg-light pt-2 font-weight-bold"
+              style="color: grey; border-radius: 10px; height: 45px; font-size: 18px;"
+              aria-current="page"
+            >
+              <i class="fas fa-user me-2"></i> Usuarios
+            </a>
+          </li>
+          <li class="nav-item pt-3">
+            <a
+              href="#"
+              @click=${(e) => this.campanas()}
+              class="nav-link active bg-light pt-2 font-weight-bold"
+              style="color: grey; border-radius: 10px; height: 45px; font-size: 18px;"
+              aria-current="page"
+            >
+              <i class="fas fa-user me-2"></i> Campañas
+            </a>
+          </li>
+          <li class="nav-item pt-3">
+            <a
+              href="#"
+              @click=${(e) => this.equipos()}
+              class="nav-link active bg-light pt-2 font-weight-bold"
+              style="color: grey; border-radius: 10px; height: 45px; font-size: 18px;"
+              aria-current="page"
+            >
+              <i class="fas fa-user me-2"></i>
+              Equipos
+            </a>
+          </li>
+        </ul>
+        <hr />
+      </div>
+    </div>
+
+    <div class="pt-2">
+    <div class="d-flex justify-content-left">
+        &nbsp&nbsp&nbsp
+        &nbsp&nbsp&nbsp
+        <div class="row d-flex">
+            <div class="row g-0 text-center pt-3">
+                <div id="cajas" class="col-sm-6 col-md-4"> ${UserService.equipos.length} </div>
+                <div id="cajas2" class="col-md-5 pt-2">Campañas Activas</div>
+            </div>
+    
+        </div>
+    </div>
+    <br>
+
+    <div id="cuadro" class="container border border-dark ml-2">
+        <div class="d-flex p-3" >
+            <div class="border border-dark" style="width: 14rem; height: 27rem; border-radius: 1rem;">
+              
+            <form id="formulario" style="display: none;">
+            <h3>Agregar Equipo</h3>
+            <input id="nombreEquipo" type="text" placeholder="Nombre del Equipo" style="width: 200px; height: 30px;" />
+            <select id="campañasSeleccionadas" multiple>
+              ${UserService.campañas.map(
+                (campaña) => html`<option value="${campaña}">${campaña}</option>`
+              )}
+            </select>
+            <input id="numeroParticipantes" type="number" placeholder="Número de Participantes" style="width: 200px; height: 30px;" />
+            <button @click=${this.agregarEquipo}>Agregar</button>
+            <button @click=${this.cerrarFormulario}>Cerrar</button>
+          </form>
+          
+            </div>
+            <div>
+                <div class="d-flex justify-content-around">
+                    <div class="ml-5 d-flex justify-content-around">
+                        <div class="row g-0 text-center pt-1">
+                            <button id="btnFiltrar" class="col-sm-6 col-md-4 border border-secondary font-weight-bold" style="font-size: 19px; height: 68px; border-radius: 7px;">Filtrar por campaña</button>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+                            <button @click=${this.abrirFormulario} style="width: 70px; height: 40px; border-radius: 5px; border: rgb(250, 101, 101); background-color: rgb(197, 24, 24); color: white;">
+                            Nuevo
+                          </button>                          
+                          </div>
+                    </div>
+                </div>
+                <div class="container border border-dark mt-4 ml-4" style="border-radius: 1rem; width: 35rem; height: 21rem;">
+                    <ul>
+                    ${this.equipos.map(
+                      (equipo, index) => html`
+                        <div>${index + 1}. ${equipo}</div>
+                      `
+                    )}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+    `;
+  }
+}
+
+customElements.define("cmp-home3", Home3);

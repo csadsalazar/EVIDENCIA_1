@@ -1,0 +1,18 @@
+body {
+    background: linear-gradient(to right, #df1212, #ecd6d6); 
+  }
+#form{
+    background: linear-gradient(to right, #da6969, #ecd6d6);
+    padding: 98px;
+    border-radius: 20px;
+}
+#form2{
+    background: linear-gradient(to right, #da6969, #ecd6d6);
+    padding: 98px;
+    border-radius: 20px;
+    right: 100px;
+    border:#c72020;
+}
+#container{
+    background-color: #da6969;
+}
